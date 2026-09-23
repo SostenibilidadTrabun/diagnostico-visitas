@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<title>Dashboard Diagnóstico — Fundación Trabün</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --surface:#f5f5f5; --card:#ffffff; --text-1:#151b29; --text-2:#52514e;
+  --text-m:#898781; --border:#e6e6e6; --border-light:rgba(21,27,41,0.06);
+  --rojo:#b51a2a; --naranja:#dc911b; --verde:#a2c037; --celeste:#6bacc4;
+  --amarillo:#f9dc0a; --azul:#151b29;
+  --rojo-c:#f5b5bb; --naranja-c:#fde8c0; --verde-c:#e5f0c8;
+  --celeste-c:#c8e3ed; --amarillo-c:#fef7c1;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --surface:#1a1a19; --card:#262625; --text-1:#ffffff; --text-2:#c3c2b7;
+    --text-m:#898781; --border:#383835; --border-light:rgba(255,255,255,0.08);
+    --rojo-c:#3d1118; --naranja-c:#3a2a0e; --verde-c:#2a3010;
+    --celeste-c:#1a2e36; --amarillo-c:#3a3508;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --surface:#1a1a19; --card:#262625; --text-1:#ffffff; --text-2:#c3c2b7;
+  --text-m:#898781; --border:#383835; --border-light:rgba(255,255,255,0.08);
+  --rojo-c:#3d1118; --naranja-c:#3a2a0e; --verde-c:#2a3010;
+  --celeste-c:#1a2e36; --amarillo-c:#3a3508;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Lato',system-ui,-apple-system,sans-serif;
+  background:var(--surface); color:var(--text-1);
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px;}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:100;background:var(--azul);padding:10px 0;
+  border-bottom:3px solid var(--naranja);}
+nav .wrap{display:flex;align-items:center;gap:6px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+nav .wrap::-webkit-scrollbar{display:none;}
+nav a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:12px;font-weight:700;
+  padding:5px 10px;border-radius:20px;white-space:nowrap;transition:all .2s;}
+nav a:hover,nav a.active{color:#fff;background:rgba(255,255,255,0.15);}
+.nav-logo{font-size:14px;font-weight:900;color:#fff;margin-right:8px;
+  letter-spacing:0.02em;flex-shrink:0;}
+
+/* Hero */
+.hero{padding:40px 0 24px;text-align:center;}
+.hero h1{color:var(--text-1);font-size:28px;font-weight:900;margin-bottom:6px;line-height:1.2;}
+.hero .bajada{color:var(--text-1);opacity:0.75;font-size:15px;margin-bottom:4px;}
+.hero .meta{color:var(--text-m);font-size:12px;margin-bottom:28px;}
+
+/* Stat tiles */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;}
+.stat{background:var(--card);border-radius:14px;padding:18px 16px 14px;text-align:center;
+  border:1px solid var(--border-light);position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.stat[data-c="celeste"]::before{background:var(--celeste);}
+.stat[data-c="verde"]::before{background:var(--verde);}
+.stat[data-c="naranja"]::before{background:var(--naranja);}
+.stat[data-c="rojo"]::before{background:var(--rojo);}
+.stat .icon{margin-bottom:8px;display:flex;justify-content:center;}
+.stat .icon svg{width:28px;height:28px;}
+.stat .val{font-size:36px;font-weight:900;color:var(--text-1);line-height:1;}
+.stat .val span{font-size:20px;font-weight:400;opacity:0.6;}
+.stat .lbl{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;
+  letter-spacing:0.06em;margin-top:4px;}
+
+/* Section */
+section{padding:28px 0 12px;}
+section h2{color:var(--text-1);font-size:24px;font-weight:900;margin-bottom:4px;}
+section .bajada{color:var(--text-1);opacity:0.75;font-size:14px;margin-bottom:20px;}
+section h3{color:var(--text-1);font-size:16px;font-weight:700;margin:20px 0 12px;
+  display:flex;align-items:center;gap:8px;}
+section h3 svg{flex-shrink:0;}
+.divider{width:100%;height:1px;background:var(--border);margin:20px 0;}
+
+/* Cards grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+/* Card */
+.card{background:var(--card);border-radius:14px;padding:16px;
+  border:1px solid var(--border-light);position:relative;}
+.card-top{border-top:5px solid var(--celeste);}
+.card-top.r{border-top-color:var(--rojo);}
+.card-top.n{border-top-color:var(--naranja);}
+.card-top.v{border-top-color:var(--verde);}
+.card-top.c{border-top-color:var(--celeste);}
+.card-top.a{border-top-color:var(--amarillo);}
+.card-left{border-left:5px solid var(--celeste);border-top:none;}
+.card-left.r{border-left-color:var(--rojo);}
+.card-left.n{border-left-color:var(--naranja);}
+.card-left.v{border-left-color:var(--verde);}
+.card-left.c{border-left-color:var(--celeste);}
+.card .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;
+  border-radius:10px;margin-bottom:8px;letter-spacing:0.04em;}
+.tag-v{background:var(--verde-c);color:#3a5a00;}
+.tag-r{background:var(--rojo-c);color:#7a0f1a;}
+.tag-c{background:var(--celeste-c);color:#1a5068;}
+.tag-n{background:var(--naranja-c);color:#7a4a00;}
+.tag-a{background:var(--amarillo-c);color:#6a5a00;}
+.card h4{color:var(--text-1);font-size:14px;font-weight:700;margin-bottom:6px;line-height:1.3;}
+.card p{color:var(--text-2);font-size:13px;line-height:1.5;}
+.card .ev{color:var(--text-m);font-size:12px;margin-top:8px;font-style:italic;line-height:1.4;}
+.card .ic{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.card .ic svg{flex-shrink:0;}
+
+/* Coverage bars */
+.bar-group{margin-bottom:16px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.bar-label{width:120px;font-size:13px;font-weight:700;color:var(--text-1);text-align:right;flex-shrink:0;}
+.bar-track{flex:1;height:20px;background:var(--border);border-radius:4px 10px 10px 4px;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:0 10px 10px 0;transition:width .6s ease;}
+.bar-val{font-size:12px;font-weight:700;color:var(--text-2);width:50px;flex-shrink:0;}
+
+/* Person bar charts */
+.person-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:16px;}
+.person-card{background:var(--card);border-radius:10px;padding:12px 14px;border:1px solid var(--border-light);}
+.person-card h5{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:1px;}
+.person-card .prole{font-size:11px;color:var(--text-m);margin-bottom:8px;}
+.pbar{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.pbar-lbl{width:92px;font-size:10px;color:var(--text-2);text-align:right;flex-shrink:0;line-height:1.2;}
+.pbar-track{display:block;flex:1;height:14px;background:var(--border);border-radius:3px 7px 7px 3px;overflow:hidden;position:relative;}
+.pbar-fill{display:block;height:100%;border-radius:0 7px 7px 0;min-width:2px;}
+.pbar-val{font-size:10px;font-weight:700;color:var(--text-2);width:62px;flex-shrink:0;}
+.pbar-na{font-size:10px;color:var(--text-m);font-style:italic;}
+/* Eval details */
+.person-grid-lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:12px;margin-bottom:16px;}
+.eval-key{font-size:11.5px;color:var(--text-2);line-height:1.45;margin-top:10px;padding-top:8px;border-top:1px dashed var(--border);}
+.eval-det{margin-top:6px;}
+.eval-det summary{font-size:11px;font-weight:700;color:var(--celeste);cursor:pointer;list-style:none;user-select:none;}
+.eval-det summary::-webkit-details-marker{display:none;}
+.eval-det summary::before{content:'▸ ';font-size:10px;}
+details > summary::-webkit-details-marker{display:none;}
+details > summary{list-style:none;}
+details[open] > summary .chevron-toggle{transform:rotate(180deg);}
+.eval-det[open] summary::before{content:'▾ ';}
+.eval-det .ecat{margin-top:6px;}
+.eval-det .ecat-h{font-size:11px;font-weight:700;color:var(--text-1);margin-bottom:2px;display:flex;align-items:center;gap:5px;}
+.eval-det .ecat-h .cdot{display:inline-block;width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.eval-det .ecat-p{font-size:11px;color:var(--text-2);line-height:1.4;margin-bottom:4px;padding-left:13px;}
+
+/* Role comparison */
+.role-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.role-head{background:var(--card);border-radius:14px 14px 0 0;padding:14px 16px;
+  text-align:center;font-size:15px;font-weight:900;color:#fff;}
+.role-body{background:var(--card);border-radius:0 0 14px 14px;padding:12px 16px;
+  border:1px solid var(--border-light);border-top:none;}
+.role-body li{font-size:13px;color:var(--text-2);padding:6px 0;
+  border-bottom:1px solid var(--border-light);line-height:1.4;}
+.role-body li:last-child{border-bottom:none;}
+.role-body li strong{color:var(--text-1);font-weight:700;}
+
+/* Needs list */
+.need{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;
+  border:1px solid var(--border-light);display:flex;gap:12px;align-items:flex-start;}
+.need-code{font-size:12px;font-weight:900;color:#fff;background:var(--azul);
+  border-radius:8px;padding:3px 8px;flex-shrink:0;margin-top:2px;}
+.need p{color:var(--text-2);font-size:13px;line-height:1.5;}
+.need p strong{color:var(--text-1);}
+
+/* Questions */
+.q-group{margin-bottom:16px;}
+.q-group h4{color:var(--text-1);font-size:14px;font-weight:700;margin-bottom:8px;padding-left:4px;}
+.q-item{background:var(--card);border-radius:10px;padding:10px 14px;margin-bottom:6px;
+  font-size:13px;color:var(--text-2);line-height:1.5;border:1px solid var(--border-light);
+  display:flex;gap:10px;align-items:flex-start;}
+.q-num{font-weight:900;color:var(--text-m);flex-shrink:0;font-size:13px;}
+
+/* Footer */
+footer{padding:24px 0 40px;text-align:center;color:var(--text-m);font-size:11px;}
+footer .brand{font-weight:900;color:var(--text-2);font-size:13px;margin-bottom:4px;}
+
+/* Utils */
+.mb-sm{margin-bottom:8px;} .mb-md{margin-bottom:16px;} .mb-lg{margin-bottom:24px;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+
+/* Responsive */
+@media(max-width:700px){
+  .stats{grid-template-columns:1fr 1fr;}
+  .g2,.g3,.role-col{grid-template-columns:1fr;}
+  .person-grid{grid-template-columns:1fr;}
+  .person-grid-lg{grid-template-columns:1fr;}
+  .hero h1{font-size:22px;}
+  .stat .val{font-size:28px;}
+  .bar-label{width:90px;font-size:12px;}
+  section h2{font-size:20px;}
+}
+@media(max-width:420px){
+  .stats{grid-template-columns:1fr 1fr;}
+  nav a{font-size:11px;padding:4px 8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="wrap">
+    <span class="nav-logo">TRABÜN</span>
+    <a href="#presentacion">Presentación</a>
+    <a href="#muestra">Muestra</a>
+    <a href="#hallazgos">Observaciones</a>
+    <a href="#roles">Roles</a>
+    <a href="#equipos">Equipos</a>
+    <a href="#modelos">Modelos</a>
+    <a href="#fuera">Otras Prácticas</a>
+    <a href="#necesidades">Necesidades</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="wrap">
+<div class="hero">
+  <h1>Diagnóstico de Visitas a Terreno</h1>
+  <p class="bajada">Entre julio y agosto de 2026 se realizaron 9 visitas a colegios para observar directamente cómo trabaja nuestro equipo en terreno. Este resumen recoge lo que se encontró: las fortalezas, las diferencias entre personas y las oportunidades de desarrollo.</p>
+  <p class="meta">Autora: Ignacia Durán · Período: 30 julio – 20 agosto 2026 · Fecha: 23 septiembre 2026</p>
+
+  <!-- Stat tiles -->
+  <div class="stats">
+    <div class="stat" data-c="celeste">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--celeste)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <div class="val">9</div>
+      <div class="lbl">Visitas a Terreno</div>
+    </div>
+    <div class="stat" data-c="verde">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="val">13</div>
+      <div class="lbl">Personas Observadas</div>
+    </div>
+    <div class="stat" data-c="naranja">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+      <div class="val"><span>~</span>45</div>
+      <div class="lbl">Instancias Registradas</div>
+    </div>
+    <div class="stat" data-c="rojo">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rojo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+      <div class="val">3</div>
+      <div class="lbl">Modelos Observados</div>
+    </div>
+  </div>
+</div>
+
+<!-- Presentación -->
+<section id="presentacion">
+  <h2>¿Qué es este diagnóstico y para qué sirve?</h2>
+  <p class="bajada">Contexto y propósito de este ejercicio de observación en terreno</p>
+  <div class="card mb-lg" style="border-left:5px solid var(--celeste);padding:16px 18px;">
+    <p style="margin-bottom:10px;">Este diagnóstico recoge lo observado durante 9 visitas a colegios realizadas entre julio y agosto de 2026. El objetivo fue observar directamente, en terreno, cómo el equipo lleva adelante las distintas instancias de acompañamiento a los establecimientos.</p>
+    <p style="margin-bottom:10px;"><strong>¿Para qué?</strong> El objetivo es identificar fortalezas compartidas, diferencias en la práctica y oportunidades de desarrollo del equipo, con el fin de construir un plan de trabajo que permita seguir fortaleciendo el acompañamiento que Trabün entrega a los colegios.</p>
+    <p style="margin-bottom:10px;"><strong>¿Cómo leerlo?</strong> Este documento presenta las observaciones organizadas en secciones temáticas. No es una evaluación individual de las personas del equipo, sino una mirada de conjunto: busca patrones y tendencias a partir de lo que se pudo observar en un momento específico. Cada hallazgo se acompaña de la evidencia que lo respalda y, cuando corresponde, de las limitaciones que lo condicionan.</p>
+    <p><strong>¿Qué viene después?</strong> A partir de este diagnóstico se construirá un plan de desarrollo profesional adaptado a las necesidades del equipo, que puede variar según las personas, los equipos y los modelos de implementación.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Muestra -->
+<section id="muestra">
+  <h2>¿A quiénes y dónde se observó?</h2>
+  <p class="bajada">Las visitas cubrieron dos programas (ASE y Religión), tres modelos de implementación y a 13 personas del equipo. Aquí se muestra cómo se distribuyen.</p>
+
+  <div class="g2 mb-lg">
+    <div class="card card-top c">
+      <h4>Por Programa</h4>
+      <div class="bar-group">
+        <div class="bar-row">
+          <span class="bar-label">ASE</span>
+          <div class="bar-track"><div class="bar-fill" style="width:56%;background:var(--celeste);"></div></div>
+          <span class="bar-val">5 visitas</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">REL</span>
+          <div class="bar-track"><div class="bar-fill" style="width:44%;background:var(--naranja);"></div></div>
+          <span class="bar-val">4 visitas</span>
+        </div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-m);">Todas las observaciones corresponden a visitas a colegios</p>
+    </div>
+    <div class="card card-top n">
+      <h4>Por Modelo</h4>
+      <div class="bar-group">
+        <div class="bar-row">
+          <span class="bar-label">Intensivo</span>
+          <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--naranja);"></div></div>
+          <span class="bar-val">7 estab.</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Semi-intensivo</span>
+          <div class="bar-track"><div class="bar-fill" style="width:11%;background:var(--celeste);"></div></div>
+          <span class="bar-val">1 estab.</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Consolidado</span>
+          <div class="bar-track"><div class="bar-fill" style="width:11%;background:var(--verde);"></div></div>
+          <span class="bar-val">1 estab.</span>
+        </div>
+      </div>
+      <p>Semi-intensivo y consolidado tienen solo 1 observación cada uno, por lo que las conclusiones en estos modelos son preliminares</p>
+    </div>
+  </div>
+
+  <div class="card mb-md" style="border-left:5px solid var(--amarillo);padding:12px 16px;">
+    <div class="ic">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <h4 style="margin-bottom:0;">Límites de la muestra</h4>
+    </div>
+    <p>Estas observaciones capturan un momento puntual del trabajo del equipo, no una imagen completa. Lo que aquí se describe no necesariamente refleja cómo trabaja cada persona siempre, ni permite comparar modelos entre sí o evaluar impacto en estudiantes. Es un punto de partida para conversar y planificar.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Hallazgos Principales -->
+<section id="hallazgos">
+  <h2>Observaciones Principales</h2>
+  <p class="bajada">Las prácticas más destacadas que se repitieron en varias visitas. Se organizan en dos grupos: lo que el equipo hace de manera consistente, y aquello donde se observan diferencias importantes entre personas.</p>
+
+  <h3>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    Lo que el equipo hace bien de manera compartida
+  </h3>
+  <div class="g2 mb-lg">
+    <div class="card card-top v">
+      <span class="tag tag-v">OB1</span>
+      <h4>El equipo lleva datos a las reuniones con los colegios</h4>
+      <p>En todas las visitas, los Jefes de Proyecto (JDP) presentaron información del colegio — encuestas, autorreportes, registros de seguimiento, plataformas de datos — durante las reuniones. Cada persona utiliza formatos y herramientas distintas para preparar esta información.</p>
+      <p class="ev">Joaco (JDP): presentación con cruce de datos por actor. Seba (JDP): datos enmarcados en dimensiones de calidad + plataforma Looker. Luis (JDP): reporte impreso con apuntes.</p>
+    </div>
+    <div class="card card-top v">
+      <span class="tag tag-v">OB2</span>
+      <h4>Vínculo y calidez en la relación con los colegios</h4>
+      <p>En las visitas se observó de manera transversal que el equipo genera una relación cercana, cálida y respetuosa con los actores escolares. Esta cercanía se manifiesta en la escucha activa, el reconocimiento del trabajo del otro y una disposición genuina a acompañar. La calidez del equipo va más allá de lo técnico y contribuye a que los colegios se sientan acompañados, no evaluados.</p>
+      <p class="ev">Se observó en distintas visitas y con distintos miembros del equipo: momentos de conexión, escucha y reconocimiento que reflejan una fortaleza compartida del equipo en la dimensión relacional.</p>
+    </div>
+    <div class="card card-top v">
+      <span class="tag tag-v">OB3</span>
+      <h4>Acciones concretas para que el colegio gane autonomía</h4>
+      <p>En varias visitas se observó que miembros del equipo buscan que las personas del colegio (encargados, mentores, docentes) hagan cosas por sí mismos en vez de depender del equipo Trabün. Por ejemplo: Ángeles (CI) modela un ejercicio y luego lo transfiere; Pau (CI) plantea un desafío a la encargada para la siguiente retroalimentación; y en un colegio de Cabrero el taller fue ejecutado autónomamente por el establecimiento.</p>
+      <p class="ev">Ángeles (CI): modela y transfiere. Pau (CI): desafía a la encargada para la próxima retro. Cabrero: taller ejecutado por el colegio.</p>
+    </div>
+    <div class="card card-top v">
+      <span class="tag tag-v">OB4</span>
+      <h4>Preparación de las instancias</h4>
+      <p>Varios miembros del equipo llegan a las visitas con una preparación deliberada de las instancias que van a facilitar. Esta preparación incluye materiales concretos, herramientas propias y una planificación previa que estructura lo que va a ocurrir. Cuando hay preparación, las instancias tienden a ser más participativas y con mayor foco.</p>
+      <p class="ev">Nico (CI): desarrolló herramientas propias para preparar la observación de aula (subrayado de indicadores, ejercicio de reconocimiento de evidencias, checklist de objetividad). Pame (CI): llega con cuaderno y planificación impresa. Luis (JDP): lleva informes impresos con apuntes.</p>
+    </div>
+    <div class="card card-top v">
+      <span class="tag tag-v">OB5</span>
+      <h4>Valoración de los colegios</h4>
+      <p>En las visitas se observó que el equipo muestra un genuino reconocimiento y valoración del trabajo que realizan los colegios. Esto se traduce en destacar los avances, reconocer el esfuerzo y comunicar el "para qué" de lo que se hace — conectando las actividades con un propósito mayor y con las oportunidades que se abren para los estudiantes.</p>
+      <p class="ev">Nico (CI): conecta cada cambio en la práctica docente con las oportunidades que genera para los estudiantes. Jesu (JDP): abre la instancia con un recurso motivacional que enmarca el trabajo del día. Joaco (JDP): reconoce los avances del colegio y los conecta con los datos.</p>
+    </div>
+  </div>
+
+  <h3>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Prácticas donde se observan diferencias importantes
+  </h3>
+  <div class="g2 mb-md">
+    <div class="card card-top n">
+      <span class="tag tag-n">OB6</span>
+      <h4>Los datos se presentan, pero en general no se trabajan con el colegio</h4>
+      <p>Si bien los JDP llevan datos a las reuniones (ver OB1), en la mayoría de las instancias observadas la información se mostró sin detenerse a analizarla junto al colegio: no se conectó con preguntas como "¿qué nos dice esto sobre la calidad de implementación?", ni se generaron pausas para que los participantes procesaran los resultados o tomaran decisiones a partir de ellos.</p>
+      <p class="ev">En varios JDP se observó que los datos se presentan de forma aislada, sin conectarlos con preguntas formativas. En una instancia no se presentaron datos. Seba (JDP) es la excepción: enmarca los datos en dimensiones de calidad y verifica representatividad.</p>
+    </div>
+    <div class="card card-top n">
+      <span class="tag tag-n">OB7</span>
+      <h4>Las reuniones tienden a incluir mucha información de una sola vez</h4>
+      <p>En al menos 6 de las 9 reuniones observadas se registró que se presenta un volumen alto de información: láminas con mucho texto, varios temas en una sola instancia y pocas pausas para que las personas del colegio procesen lo que se les está mostrando. Esto puede hacer más difícil que la información se convierta en aprendizaje o decisiones.</p>
+      <p class="ev">Se observó en la mayoría de los JDP: presentaciones con láminas densas, múltiples temas abordados en una sola reunión y poco espacio para que el colegio procese la información.</p>
+    </div>
+    <div class="card card-top n">
+      <span class="tag tag-n">OB8</span>
+      <h4>La retroalimentación se hace de formas muy distintas entre personas</h4>
+      <p>La retroalimentación es la conversación que el equipo tiene con mentores o docentes después de observar una clase. Existe una pauta compartida de 6 pasos (igual para ASE y Religión), pero en la práctica cada Coordinador/a de Implementación (CI) la aplica de manera distinta: la duración varía desde 5-10 minutos hasta procesos extensos; algunas incluyen un momento de conexión emocional y otras van directo al análisis; y cuánto participa el mentor o docente en la conversación cambia mucho entre instancias.</p>
+      <p class="ev">Maca (CI): retroalimentaciones breves (5-10 min). Nico (CI): procesos más extensos y estructurados. La participación activa del actor escolar durante la retroalimentación es uno de los factores que más varía entre CI.</p>
+    </div>
+    <div class="card card-top n">
+      <span class="tag tag-n">OB9</span>
+      <h4>Las prácticas movilizadoras se entienden y aplican de manera desigual</h4>
+      <p>Las prácticas movilizadoras se observaron con niveles muy distintos de comprensión en el equipo. Mientras Ángeles (CI) las usa con versatilidad y fluidez, en otros casos se registraron confusiones conceptuales — por ejemplo, interpretar "estíralo" (una técnica para profundizar el pensamiento del otro) como parafraseo. Esto sugiere que no todos comparten la misma base conceptual, lo que incluye al propio equipo Trabün. Desde los colegios, los actores escolares piden contar con videos o ejemplos de cómo se ve una buena práctica movilizadora.</p>
+      <p class="ev">La brecha no es solo de técnica sino de comprensión de fondo: ¿para qué sirven estas prácticas y cuándo usarlas? Desde los colegios se demanda poder ver el modelo en acción.</p>
+    </div>
+    <div class="card card-top n">
+      <span class="tag tag-n">OB10</span>
+      <h4>Las instancias tienden a extenderse y desplazar lo que viene después</h4>
+      <p>Un patrón que se repitió en varias visitas: las reuniones se alargan más de lo planificado, lo que hace que las instancias siguientes se acorten o se pierdan. Por ejemplo, una preparación de retroalimentación derivó en un taller de una hora, una observación de clase quedó incompleta por falta de tiempo, y en otro caso un taller programado no se realizó.</p>
+      <p class="ev">Nico (CI): la preparación de retro derivó en taller de 1 hora. Cabrero: a la clase le faltaron 20 min. Cañete: el taller no se realizó (por decisión coordinada con el colegio).</p>
+    </div>
+    <div class="card card-top n">
+      <span class="tag tag-n">OB11</span>
+      <h4>Se busca dar autonomía, pero a veces se interviene directamente</h4>
+      <p>Junto con las acciones de transferencia descritas en OB3, también se observó que en varias instancias el equipo hace cosas que podrían estar haciendo las personas del colegio: guiar la retroalimentación paso a paso, hablar directamente con las mentoras en vez de que lo haga la encargada, o proponer acciones sin consultar primero al actor escolar. Es una tensión natural del proceso de acompañamiento: la línea entre "acompañar" y "hacer por el otro" no siempre es clara.</p>
+      <p class="ev">Se observó en distintas instancias que el equipo interviene directamente cuando el actor escolar podría estar asumiendo un rol más activo. Este patrón conecta con la necesidad de graduar la autonomía (NA4).</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Roles -->
+<section id="roles">
+  <h2>Patrones por Rol</h2>
+  <p class="bajada">El equipo tiene dos roles principales: los Jefes/as de Proyecto (JDP), que lideran la relación con el colegio y presentan datos, y los Coordinadores/as de Implementación (CI), que acompañan más de cerca en el aula (retroalimentación, observación de clase, trabajo con mentores). Aquí se describe lo que se observó en cada rol.</p>
+
+  <div class="role-col">
+    <div>
+      <div class="role-head" style="background:var(--celeste);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        JDP — 7 observados
+      </div>
+      <div class="role-body" style="border-color:var(--celeste-c);">
+        <ul style="list-style:none;">
+          <li><strong>Todos llevan datos:</strong> Cada JDP presenta información del colegio en las reuniones de seguimiento, aunque la información tiende a acumularse sin una jerarquización clara de qué es lo más importante.</li>
+          <li><strong>¿Para qué se usan esos datos?</strong> Seba conecta los datos con dimensiones de calidad de implementación; Joaco cruza información entre actores y construye un relato a partir de los datos, no solo información suelta. En el resto, los datos se mostraron sin una conexión formativa explícita: se presentan, pero no se trabajan con el colegio.</li>
+          <li><strong>Compromisos con el colegio:</strong> La cantidad varía mucho: desde 6 compromisos hasta acumulaciones sin priorización. No se observó un sistema compartido para hacer seguimiento de estos acuerdos.</li>
+          <li><strong>Tutoría del encargado:</strong> Es la instancia donde el JDP trabaja uno a uno con la persona que lidera el programa en el colegio. Fue la que mostró menor estructura compartida entre los JDP observados.</li>
+          <li><strong>Inicio de la reunión:</strong> Algunos JDP abren con una actividad lúdica o motivacional. La preparación de este momento varía: en una instancia, por ejemplo, la actividad de inicio no contaba con los materiales necesarios.</li>
+          <li><strong>Intercambio de experiencias entre colegios:</strong> Joaco comparte lo observado en un colegio con otro y sugiere que encargados de distintos colegios se conozcan. En otros casos, cada reunión se presentó de forma más aislada.</li>
+          <li><strong>Gestión del tiempo:</strong> Las reuniones que se extienden más allá de lo planificado es un patrón compartido entre los JDP.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="role-head" style="background:var(--naranja);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        CI — 6 observadas
+      </div>
+      <div class="role-body" style="border-color:var(--naranja-c);">
+        <ul style="list-style:none;">
+          <li><strong>Retroalimentación:</strong> Aunque existe una pauta compartida de 6 pasos, su aplicación varía mucho. Maca realiza retroalimentaciones breves (5-10 min), mientras que Nico y Pau desarrollan procesos más extensos. La diferencia está en la duración, la profundidad del diálogo y cuánto participa el mentor o docente en la conversación.</li>
+          <li><strong>Prácticas movilizadoras:</strong> Ángeles las usa con versatilidad y fluidez. Nico y Pame las aplican parcialmente. En otros casos se observó menor presencia o confusiones conceptuales en torno a estas prácticas. Es un área donde el propio equipo Trabün necesita profundizar su comprensión.</li>
+          <li><strong>Estilo de conversación:</strong> Ángeles y Pame tienden a usar preguntas abiertas que invitan al otro a pensar; Nico y Jose tienden a declarar o guiar la instancia con más detalle, dejando menos espacio para que el otro construya sus propias conclusiones.</li>
+          <li><strong>Preparación previa:</strong> Pame llega con cuaderno y planificación impresa; Nico desarrolló su propia metodología de preparación (ver OB4). En la instancia de Jose en Algarrobal, la preparación previa a la observación fue menor que en otras instancias.</li>
+          <li><strong>Revisión de la planificación del docente:</strong> Varía entre CI. Pame y Ángeles leen la planificación junto con los actores escolares durante la preparación. El resto del equipo tiende a asumir una lectura previa, aunque en algunos casos reconocen no haberla revisado con anterioridad.</li>
+          <li><strong>Capacidad de ajuste:</strong> Nico modificó su abordaje de un día para otro entre dos colegios (Cabrero y Cañete), ajustando su nivel de directividad y estilo.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Equipos -->
+<section id="equipos">
+  <h2>¿Qué se observó en cada equipo?</h2>
+  <p class="bajada">Trabün tiene tres equipos, cada uno liderado por una subdirectora. Aquí se resumen las fortalezas y los aspectos a profundizar que se observaron en las visitas a colegios de cada equipo.</p>
+
+  <div class="g3">
+    <div class="card card-top r">
+      <span class="tag tag-r">REL</span>
+      <h4>Equipo de Religión · Subdirección Ivone Vera</h4>
+      <p style="font-size:12px;color:var(--text-m);margin-bottom:8px;">Jesu (JDP), Fer (JDP), Ángeles (CI), Pau (CI), Maca (CI) · 3 colegios intensivo</p>
+      <p><strong>Fortalezas:</strong> Ángeles destaca como referente en el uso de técnicas participativas (prácticas movilizadoras); el modelo REL tiene instancias propias valiosas — como la retroalimentación a la mentora y los espacios de oración — que lo diferencian de ASE; Pau promueve activamente que el actor escolar tome decisiones por sí mismo, fortaleciendo su autonomía.</p>
+      <p style="margin-top:6px;"><strong>Aspectos a profundizar:</strong> En ambos JDP se observó la tendencia a entregar mucha información en poco tiempo, sin conectar esos datos con preguntas o decisiones formativas (ver NA1). La comprensión de las prácticas movilizadoras varía dentro del equipo (ver NA3). La retroalimentación tiene diferencias importantes: Maca la realiza de manera breve (5-10 min), mientras Ángeles la extiende considerablemente, con variación en profundidad y participación del actor escolar (ver OB8).</p>
+    </div>
+    <div class="card card-top c">
+      <span class="tag tag-c">ASE SUR</span>
+      <h4>Equipo ASE Sur · Subdirección Coni Olea</h4>
+      <p style="font-size:12px;color:var(--text-m);margin-bottom:8px;">Joaco (JDP), Luis (JDP), Rodrigo (JDP), Pame (JDP consolidado + CI intensivo), Nico (CI) · 3 colegios intensivo + 1 consolidado + 1 semi-intensivo (online)</p>
+      <p><strong>Fortalezas:</strong> Joaco (JDP) y Nico (CI) se articulan bien: Joaco aporta datos y construye un relato formativo a partir de ellos, y Nico tiene una metodología original para preparar la observación de aula. Pame, cuando actúa como CI, trabaja con evidencia concreta (cuaderno del docente, planificación impresa). En Cabrero, el taller fue ejecutado de forma autónoma por el colegio, lo que refleja avance en la transferencia.</p>
+      <p style="margin-top:6px;"><strong>Aspectos a profundizar:</strong> Los tiempos de las instancias se extienden con frecuencia, lo que afecta la agenda completa de la visita (ver NA5). La tutoría al encargado — una instancia clave — mostró menor estructura que otras instancias. La instancia de Rodrigo fue online (Isla de Pascua) y no incluyó datos ni estructura analítica — es una sola observación, por lo que no permite conclusiones amplias.</p>
+    </div>
+    <div class="card card-top v">
+      <span class="tag tag-v">ASE CENTRO</span>
+      <h4>Equipo ASE Centro · Subdirección Cote Decombe</h4>
+      <p style="font-size:12px;color:var(--text-m);margin-bottom:8px;">Seba (JDP), Jose (CI) · 1 colegio intensivo</p>
+      <p><strong>Fortalezas:</strong> Seba es el único JDP que al presentar datos los enmarca en las dimensiones de calidad del programa y verifica si la muestra es representativa antes de sacar conclusiones. Jose, como CI, trabaja la retroalimentación con un esquema claro: acción observada + evidencia + impacto en el aprendizaje.</p>
+      <p style="margin-top:6px;"><strong>Aspectos a profundizar:</strong> Jose guía la retroalimentación con mucho detalle, lo que es una fortaleza pero también podría limitar el protagonismo del actor escolar. La preparación previa a la observación en Algarrobal fue menor que en otras instancias. Este equipo tiene la representación más limitada en la muestra (1 visita).</p>
+    </div>
+  </div>
+
+  <details style="margin-top:24px;">
+  <summary style="cursor:pointer;display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--text-1);list-style:none;padding:12px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border-light);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" style="flex-shrink:0;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span style="flex:1;">Evaluación por categoría en cada integrante</span>
+    <svg class="chevron-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" style="flex-shrink:0;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+  </summary>
+  <p style="color:var(--text-2);font-size:13px;margin:12px 0 10px;">Cada persona fue evaluada cualitativamente a partir del <strong>análisis global de todo lo registrado</strong> en las visitas — no solo de los aspectos destacados. La evaluación considera todas las instancias observadas, incluyendo fortalezas, brechas y ausencias de evidencia. Las personas con solo 1 visita tienen menor evidencia disponible.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-bottom:12px;padding:12px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border-light);">
+    <div style="display:flex;align-items:flex-start;gap:8px;">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#a2c037;flex-shrink:0;margin-top:2px;"></span>
+      <span style="font-size:12px;color:var(--text-2);line-height:1.35;"><strong style="color:var(--text-1);">Generar relaciones</strong> — Cercanía, confianza, trato personalizado y calidez.</span>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px;">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#dc911b;flex-shrink:0;margin-top:2px;"></span>
+      <span style="font-size:12px;color:var(--text-2);line-height:1.35;"><strong style="color:var(--text-1);">Generar capacidades</strong> — Modelamiento, retroalimentación, transferencia de herramientas.</span>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px;">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#6bacc4;flex-shrink:0;margin-top:2px;"></span>
+      <span style="font-size:12px;color:var(--text-2);line-height:1.35;"><strong style="color:var(--text-1);">Vincular con el propósito</strong> — Motivación, visión compartida, datos al servicio del para qué.</span>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px;">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#b51a2a;flex-shrink:0;margin-top:2px;"></span>
+      <span style="font-size:12px;color:var(--text-2);line-height:1.35;"><strong style="color:var(--text-1);">Casa ordenada</strong> — Conocimiento del programa, claridad de expectativas, planificación, logística y materiales.</span>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:16px;margin-bottom:18px;padding:10px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border-light);flex-wrap:wrap;align-items:center;">
+    <span style="font-size:11px;font-weight:700;color:var(--text-1);">Escala:</span>
+    <span style="font-size:11px;color:var(--text-2);"><strong>Destacado</strong> — Práctica consistente con evidencia clara</span>
+    <span style="font-size:11px;color:var(--text-m);">·</span>
+    <span style="font-size:11px;color:var(--text-2);"><strong>Adecuado</strong> — Presente, con aspectos por fortalecer</span>
+    <span style="font-size:11px;color:var(--text-m);">·</span>
+    <span style="font-size:11px;color:var(--text-2);"><strong>En desarrollo</strong> — Oportunidades significativas que requieren atención</span>
+    <span style="font-size:11px;color:var(--text-m);">·</span>
+    <span style="font-size:11px;color:var(--text-2);"><strong>No observado</strong> — Sin evidencia suficiente para evaluar</span>
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:var(--text-1);margin:12px 0 8px;"><span class="tag tag-r">REL</span></p>
+  <div class="person-grid-lg">
+    <div class="person-card">
+      <h5>Jesu</h5>
+      <p class="prole">JDP · 2 visitas</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(6)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(6)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(10)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Promueve reflexión con recursos creativos. Se observan materiales que requieren mayor revisión antes de su uso (PPT generado con IA, interpretación de datos a precisar).</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Promueve reflexión y usa recursos motivadores (video colibrí). Se observa oportunidad de incorporar mayor calidez al inicio de las reuniones y de reconocer más explícitamente las fortalezas de los actores.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Logra metacognición en encargada de El Almendro y simplifica trayectoria de forma efectiva. Se observa oportunidad de complementar las reflexiones con datos o evidencia concreta.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Liga ocasionalmente con propósito del programa y consolidación; las conexiones podrían profundizarse. Oportunidad de vincular más explícitamente los datos con el para qué del programa.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Se observan aspectos a mejorar en los materiales de presentación: PPT con imágenes borrosas, alta densidad de texto y láminas que requieren mayor revisión antes de su uso. Se observa una oportunidad de precisar la interpretación de datos (confusión entre % de clase implementada y % de clases realizadas).</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Fer</h5>
+      <p class="prole">JDP · 1 visita</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(4)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Presencia energética que genera orgullo en el equipo. Oportunidad de vincular los datos presentados con un propósito formativo más explícito. Evidencia de solo 1 visita.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Ritmo y volumen fluido, presencia activa y energética. Genera orgullo visible en el equipo al presentar resultados. Buen momento de vínculo en taller. Frase &#x27;partiremos juntos este viaje&#x27; refleja cercanía. Evidencia de una sola visita.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Hace comparación EFA novedosa y construye sobre respuestas de profesoras en taller. Oportunidad de vincular los datos presentados con un propósito formativo más explícito y de construir el análisis de forma conjunta con el establecimiento.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Oportunidad de contextualizar los datos desde el para qué y de acompañar las diapositivas con una narrativa que los conecte al sentido del programa.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Próximos pasos claros y buen ritmo de reunión. Hace ganchos verbales con dimensiones y compara con EFA anterior, lo cual es positivo y novedoso. Se observan aspectos a ajustar: diapositiva con alta densidad de datos, actividad inicial algo extensa, y discrepancia entre Looker y lo presentado que no se aclaró. Evidencia de una sola visita.</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Ángeles</h5>
+      <p class="prole">CI · 2 visitas</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(6)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(12)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(4)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Referente en técnicas participativas: modela y luego transfiere. Genera continuidad formativa entre visitas.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Pregunta cómo se sienten los actores, genera espacio emocional en retroalimentaciones, y crea sensación de continuidad entre visitas. Reconoce nerviosismo de profesora ante grabación.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Mejor dominio de prácticas movilizadoras de toda la muestra. Modela y luego transfiere, usa preguntas movilizadoras, trabaja con prácticas de alto impacto específicas. Genera sensación de continuidad y progresión entre visitas. A veces dice antes de preguntar, reduciendo oportunidad de aprendizaje del otro.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Pregunta consistentemente por sentido e impacto de lo retroalimentado. Conecta visitas anteriores con la actual generando continuidad formativa. Vincula acciones concretas con el porqué pedagógico.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Generalmente organizada y maneja tiempos adecuadamente incluso cuando son acotados. Propone reorganizar días de reuniones de equipo entre ciclos de visita, mostrando visión de gestión.</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Pau</h5>
+      <p class="prole">CI · 2 visitas</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(10)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Gran cercanía con los colegios que fortalece la adherencia. Oportunidad de precisar conceptos clave (ej. prácticas movilizadoras) y de fortalecer el seguimiento de la planificación.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">El colegio la quiere mucho y se nota el cariño entregado. Inicia retroalimentaciones con vínculo y cercanía. Genera confianza que facilita adherencia. Pone ejemplos del propio colegio, lo que muestra conocimiento del contexto.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Desafía a encargada hacia autonomía (liderar próxima retro sola) y genera retro a mentora como instancia formativa diferenciada. Se observan oportunidades de precisar conceptos (conceptualiza &#x27;estíralo&#x27; como parafraseo), de favorecer un enfoque más dialogado en momentos clave, de priorizar objetivos de mejora, y de verificar la alineación entre la clase observada y la planificación.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Se observan oportunidades de fortalecer la conexión con el porqué: la retroalimentación podría profundizar más en el sentido, y se observa espacio para que la encargada comprenda mejor el impacto de la planificación.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Estructura de retroalimentación presente y priorización mencionada (bajo esfuerzo/alto impacto) pero no operacionalizada. No detectó que clase observada estaba completamente fuera de planificación. Gestión del tiempo como área de desarrollo.</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Maca</h5>
+      <p class="prole">CI · 1 visita</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(4)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(6)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(3)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(3)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Espacio de retroalimentación breve (5-10 min). Señales preliminares a verificar con más evidencia (1 visita).</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Enmarca desde lo positivo y reconoce trayectoria del establecimiento y busca sacar estigma de la observación como punitiva. Evidencia limitada a una sola visita.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Usa role play en preparación de retroalimentación y promueve metacognición. Se observa oportunidad de iniciar la retroalimentación desde las fortalezas, de profundizar en la comprensión de prácticas movilizadoras, y de fortalecer la capacidad de los mentores para identificar áreas de mejora.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Se observa oportunidad de enriquecer la retroalimentación con mayor conexión con el para qué del programa, y de profundizar en el sentido de lo modelado vs lo esperado de la práctica movilizadora.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Retroalimentación de solo 5-10 minutos, significativamente breve para una instancia formativa central. Evidencia limitada a una sola visita.</p></div>
+      </details>
+    </div>
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:var(--text-1);margin:12px 0 8px;"><span class="tag tag-c">ASE Sur</span></p>
+  <div class="person-grid-lg">
+    <div class="person-card">
+      <h5>Joaco</h5>
+      <p class="prole">JDP · 2 visitas</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(6)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(8)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(10)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Mejor sistema de presentación de datos observado. Un colegio ejecutó taller autónomamente (señal de consolidación). Estilo inclusivo.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Inclusivo y amigable incluso presentando datos complejos. Da espacio para propuestas del colegio hacia Trabün. Desafía a reflexionar como equipo autónomo. Presenta datos de Cañete con tono cercano ante contexto difícil. Director y equipo participan activamente.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Logró que colegio ejecutara taller autónomamente (señal de consolidación). Comparte prácticas entre colegios y conecta MPA con pastoral y servicio. No impone: &#x27;no voy a decirles qué hacer, pero sí les puedo decir que acompañen&#x27;. Oportunidad de incorporar chequeos de comprensión durante presentaciones densas y de dar mayor estructura a la tutoría del encargado.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Se observa oportunidad de vincular los datos presentados con el para qué del programa y de dar mayor sentido formativo a las instancias de seguimiento.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Buenas herramientas (Claude-PPT, web para tutoría, compromisos manejables: solo 6) y presenta datos como relato. Oportunidad de contextualizar la EFS (cuándo se tomó, que es encuesta de percepción), de explicar el estándar Trabün para NPS, y de incorporar material tangible en la tutoría para que el encargado pueda registrar o visualizar.</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Luis</h5>
+      <p class="prole">JDP · 1 visita</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(4)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(4)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(3)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(8)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Fortaleza en gestión y análisis de datos. Se observan aspectos a fortalecer en el cuidado del vínculo con actores escolares y en el enfoque formativo del acompañamiento. Solo 1 visita.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Se ofrece a conversar con sostenedor como gesto positivo. Se observan oportunidades de cuidar la comunicación con actores escolares (ej. señalamiento público de planilla, interrupción a mentor). Evidencia de una sola visita.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Tutoría del encargado tiene estructura (autoevaluación, metas), con oportunidad de favorecer mayor interacción y protagonismo del encargado. Los compromisos de la reunión de seguimiento podrían enriquecerse con mayor contextualización para facilitar la transferencia al establecimiento. Evidencia de una sola visita.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Buen manejo de datos (reconocido por observadora), con oportunidad de vincular la evidencia con las dimensiones de implementación y con el para qué del programa. Los compromisos podrían beneficiarse de una mayor contextualización temática.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Fortaleza en gestión de datos: informe impreso, agenda con objetivo claro. Se observan aspectos a mejorar: ortografía en actividades, preparación del juego (sin plan B), cantidad de compromisos que podría priorizarse, foco de la reunión, y oportunidad de profundizar en el conocimiento del programa (encuentros).</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Rodrigo</h5>
+      <p class="prole">JDP · 1 visita (online)</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(6)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(4)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(3)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:33%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">En desarrollo <span style="opacity:0.6;">(8)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Muy relacional, con alta participación de los actores. Se observa la necesidad de incorporar datos y estructura analítica, y de fortalecer aspectos logísticos. Solo 1 visita (online).</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Muy relacional y dialogado. La reunión fluye con alta participación de todos los actores. Pregunta genuinamente cómo están, genera momento de vinculación clave, es respetuoso del tiempo. Actividad final de logros y desafíos promueve reflexión y empoderamiento. Evidencia de una sola visita online.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Invita a talleres y conversa sobre metas de acompañamiento, pero no se observó uso de datos ni evidencia durante la instancia, lo que limita la posibilidad de construir capacidades con fundamento. No se abordaron adherencia, fidelidad ni EFS. La fortaleza relacional se beneficiaría de complementarse con mayor estructura analítica.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Menciona propósito de la reunión al inicio pero no lo sostiene con datos ni evidencia a lo largo de ella. No aborda dimensiones clave de implementación.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Inicio tardío (16:38), sin presentación preparada, confunde ECC con componente familia, se distrae durante la reunión, error sobre timeline de cohorte (dice octubre, es noviembre), parece revisar planilla en el momento. Reunión observada como breve y con oportunidad de mayor estructura. No se presentaron datos. Evidencia de una sola visita online.</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Pame</h5>
+      <p class="prole">JDP consolidado + CI intensivo · 2 visitas</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(8)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(12)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Como CI, fuerte en preguntas de impacto y trabajo desde planificación. Como JDP consolidado, oportunidad de ajustar el nivel de intervención al modelo de mayor autonomía del colegio.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Como JDP: cercana, pregunta por contexto, usa medidor emocional, cierra con &#x27;¿qué necesitas de mí?&#x27;. Como CI: vincula con medidor y bingo. Se observa que la velocidad de su lenguaje podría afectar la conexión con los actores.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Como CI es fuerte: preguntas de impacto poderosas, trabaja desde la planificación, pide evidencia, busca generar capacidades instaladas. Como JDP consolidado se observa oportunidad de favorecer mayor autonomía de la encargada (ej. agenda acompañamientos con mentoras), aspecto central en este modelo.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Como CI conecta con propósito a través de preguntas de impacto y sentido de la clase. Como JDP se observa oportunidad de abordar más explícitamente el foco acordado y de vincular las instancias con el para qué del programa.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Como JDP: compromisos que podrían priorizarse, reunión excede horario (metas a las 16:00, fin era 15:45), solo dos dimensiones abordadas en una hora, y metas quedan para el final sin tiempo suficiente. Oportunidad de mayor síntesis en el lenguaje. Como CI: tiene cuaderno y planificación impresa; se observa traslape entre reunión de mentores y seguimiento.</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Nico</h5>
+      <p class="prole">CI · 2 visitas</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(12)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(6)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(6)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Metodología original (bingo de evidencias, checklists). Mejora visible entre visitas. La más consistente del equipo CI en vincular acciones con el porqué.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Buenos momentos de vinculación (&#x27;detrás de cada mentor hay una historia&#x27;) y seguimiento cercano de acuerdos con calidez. Genera confianza y cercanía con los actores escolares.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Metodología original de preparación (palabras clave, bingo de evidencias, checklist). Estructura Paul Bambrick para retroalimentación. Mejora observable entre visitas: pasa de &#x27;yo vi, ¿les parece?&#x27; a guiar con preguntas sin dar respuestas. Preguntas movilizadoras potentes. En primera visita mezcla prep retro con taller (1 hora) y lee planificación en el momento.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">La más consistente en vincular el qué con el porqué de toda la muestra CI: &#x27;detrás de cada cambio a un docente, hay más oportunidades para un estudiante&#x27;. Establece expectativas con propósito claro. Pregunta sistemáticamente por sentido e impacto de cada instancia.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Mejora observable entre visitas (transiciones más adecuadas en Cañete, ajuste de instrucciones). En la primera visita se observan aspectos a fortalecer: inicio 20 min tarde y preparación de retro mezclada con taller de 1 hora.</p></div>
+      </details>
+    </div>
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:var(--text-1);margin:12px 0 8px;"><span class="tag tag-v">ASE Centro</span></p>
+  <div class="person-grid-lg">
+    <div class="person-card">
+      <h5>Seba</h5>
+      <p class="prole">JDP · 1 visita</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(4)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(5)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(6)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Encuadre conceptual avanzado que vincula datos con el para qué del programa. Se observa oportunidad de simplificar la densidad de contenido y de favorecer mayor interacción. Solo 1 visita.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Maneja respuesta de director resistente sin invalidar y mantiene el clima de la reunión. Se observa oportunidad de anticipar este tipo de dinámicas mediante un diagnóstico relacional previo del contexto. Evidencia de una sola visita.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Crea espacio de reflexión con preguntas iniciales y da tiempo para responder. Pregunta si habilidades están instaladas o en proceso. El enfoque tiende a ser más presentacional que interactivo, lo que abre la oportunidad de favorecer mayor construcción conjunta con el establecimiento.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Vincula con literatura de implementación y presenta los 3 componentes del programa, dando sentido a los datos desde el para qué. Encuadre conceptual avanzado. Evidencia de una sola visita.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Enmarca datos en dimensiones de calidad de implementación (primera vez observado). Excel de seguimiento de entregas, Looker para verificar representatividad son fortalezas destacables. Se observan aspectos a mejorar: PPT con errores ortográficos y de formato, alta densidad de contenido en presentación de datos, y reunión que excedió el tiempo planificado.</p></div>
+      </details>
+    </div>
+    <div class="person-card">
+      <h5>Jose</h5>
+      <p class="prole">CI · 1 visita</p>
+      <div class="pbar"><span class="pbar-lbl">Relaciones</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--verde);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(3)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Capacidades</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--naranja);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(8)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Propósito</span><span class="pbar-track"><span class="pbar-fill" style="width:100%;background:var(--celeste);"></span></span><span class="pbar-val" style="width:110px;">Destacado <span style="opacity:0.6;">(4)</span></span></div>
+      <div class="pbar"><span class="pbar-lbl">Casa ordenada</span><span class="pbar-track"><span class="pbar-fill" style="width:66%;background:var(--rojo);"></span></span><span class="pbar-val" style="width:110px;">Adecuado <span style="opacity:0.6;">(5)</span></span></div>
+      <p class="eval-key"><strong>Lo más destacable:</strong> Herramientas valiosas (acción + evidencia + impacto). Se observa oportunidad de fortalecer la preparación previa de la observación y de favorecer mayor protagonismo del actor escolar. Solo 1 visita.</p>
+      <details class="eval-det">
+        <summary>Ver evidencia por categoría</summary>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--verde);"></span> Relaciones</p><p class="ecat-p">Valida malestar de docentes en taller y ofrece apoyo. Empodera a mentora para participar en taller. Oportunidad de incorporar momentos más deliberados de vinculación con mentoras y reconocimiento de fortalezas personales. Evidencia limitada.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--naranja);"></span> Capacidades</p><p class="ecat-p">Marco de acción+evidencia+impacto y dibujo de sala como herramientas valiosas. Se observa oportunidad de fortalecer la preparación de la observación (mentoras no sabían qué clase ver) y de abrir más espacio en la retroalimentación para que la mentora identifique áreas de mejora por sí misma. La observadora señala la necesidad de contar con un paso a paso para estructurar estas instancias.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--celeste);"></span> Propósito</p><p class="ecat-p">Intenciona el impacto en el aprendizaje de los niños y vincula con teoría (Gross, Brackett). Conecta uso de ECC con efecto en otros espacios. Se observa oportunidad de transmitir más claramente el propósito general del taller y de profundizar en el cómo más allá del qué. Evidencia de una sola visita.</p></div>
+        <div class="ecat"><p class="ecat-h"><span class="cdot" style="background:var(--rojo);"></span> Casa ordenada</p><p class="ecat-p">Taller bien preparado, a tiempo y organizado. Presentación lista con focalización por ambientes y registro en cuaderno. Se observa oportunidad de preparar mejor la observación de clase (mentoras no sabían qué clase venía) y de revisar los criterios de selección del docente a observar (se escogió a una reemplazante en vez de la profesora jefe).</p></div>
+      </details>
+    </div>
+  </div>
+  </details>
+</section>
+
+<div class="divider"></div>
+
+<!-- Modelos -->
+<section id="modelos">
+  <h2>¿Qué se observó en cada modelo de implementación?</h2>
+  <p class="bajada">Trabün trabaja con tres modelos según la etapa y las necesidades de cada colegio. Cada modelo implica un nivel distinto de acompañamiento. Aquí se resume lo observado en cada uno, aunque los modelos semi-intensivo y consolidado tienen solo una visita cada uno, por lo que sus observaciones son muy preliminares.</p>
+
+  <div class="g3">
+    <div class="card card-left n">
+      <span class="tag tag-n">7 COLEGIOS</span>
+      <h4>Modelo Intensivo</h4>
+      <p>En este modelo el colegio recibe acompañamiento presencial de una dupla formada por un/a Jefe/a de Proyecto (JDP) y un/a Coordinador/a de Implementación (CI). Es el modelo con mayor representación en las visitas y el que permite observar más instancias por visita (entre 4 y 8).</p>
+      <p style="margin-top:6px;"><strong>Qué se observó:</strong> La forma en que JDP y CI se articulan varía entre duplas. La dupla Joaco-Nico muestra una complementariedad deliberada: Joaco aporta datos y Nico una metodología propia para la observación de aula. En otras duplas la articulación fue menos visible en la instancia observada, aunque esto no significa que no exista fuera de ella.</p>
+      <p style="margin-top:4px;"><strong>ASE y Religión:</strong> Religión incluye instancias propias como la oración/reflexión y la retroalimentación a la mentora. Ambos programas comparten la misma pauta de retroalimentación, pero su aplicación en la práctica varía entre CI: algunas la siguen paso a paso, otras la adaptan, con diferencias en duración, profundidad y participación del actor escolar (ver OB8).</p>
+    </div>
+    <div class="card card-left c">
+      <span class="tag tag-c">1 COLEGIO</span>
+      <h4>Modelo Semi-intensivo</h4>
+      <p>En este modelo el JDP trabaja solo, sin CI. El acompañamiento al aula es tarea del propio colegio. Solo se realizó 1 visita, online (Isla de Pascua), por lo que estas observaciones son muy limitadas.</p>
+      <p style="margin-top:6px;"><strong>Qué se observó:</strong> La reunión tuvo un carácter dialogado y cercano, con buena relación entre el JDP y el colegio. Se observa oportunidad de incorporar uso de datos y una estructura analítica más definida. No fue posible verificar si el colegio realiza efectivamente el acompañamiento al aula por su cuenta.</p>
+    </div>
+    <div class="card card-left v">
+      <span class="tag tag-v">1 COLEGIO</span>
+      <h4>Modelo Consolidado</h4>
+      <p>En este modelo el colegio debería ir asumiendo progresivamente las funciones que antes realizaba el equipo Trabün. El JDP acompaña, pero el protagonismo recae en el establecimiento. Solo se realizó 1 visita (Madres Dominicas), por lo que la observación es muy preliminar.</p>
+      <p style="margin-top:6px;"><strong>Qué se observó:</strong> Pame (JDP) trabaja con datos y hace seguimiento. En la instancia observada, la intervención fue más directa de lo que el modelo consolidado sugiere. Esto abre una reflexión valiosa: ¿cómo se gradúa la intervención del JDP para que el colegio vaya efectivamente asumiendo el protagonismo? ¿La intervención responde a una necesidad real del colegio o refleja un hábito del equipo? (Ver OB11 y NA4.)</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Fuera de criterios -->
+<section id="fuera">
+  <h2>Otras prácticas observadas que vale la pena mirar</h2>
+  <p class="bajada">Además de los seis criterios de análisis, las visitas revelaron prácticas que no estaban en el marco original pero que son relevantes para Trabün. Algunas son fortalezas que podrían compartirse, otras son temas que conviene conversar.</p>
+
+  <h3>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Prácticas valiosas que podrían compartirse en el equipo
+  </h3>
+  <div class="g3 mb-lg">
+    <div class="card" style="border-top:4px solid var(--celeste);">
+      <h4>Uso creativo de herramientas tecnológicas</h4>
+      <p>Varias personas del equipo han incorporado herramientas digitales por iniciativa propia, sin que estén prescritas institucionalmente: Joaco usa una herramienta de IA para preparar presentaciones, Seba verifica datos en la plataforma Looker. Estas prácticas podrían evaluarse para compartir lo que funciona.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--naranja);">
+      <h4>Intercambio de experiencias entre colegios</h4>
+      <p>Joaco (JDP) comparte prácticas que observó en un colegio cuando visita otro, y sugiere que encargados de distintos colegios se conozcan entre sí (pasantías). Este intercambio de experiencias podría ser una fortaleza institucional si se sistematiza.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--verde);">
+      <h4>Material concreto para las instancias</h4>
+      <p>Algunas personas del equipo llevan materiales físicos que estructuran la instancia y facilitan la participación del actor escolar: Pame (CI) trabaja con el cuaderno del docente y su planificación impresa; Nico (CI) prepara bingos, tarjetas y checklists; Luis (JDP) lleva informes impresos. Cuando hay un material tangible, la instancia tiende a ser más participativa.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--naranja);">
+      <h4>Capacidad de ajustar rápidamente la práctica</h4>
+      <p>Se observó que Nico (CI) mejoró visiblemente su práctica entre Cabrero y Cañete (visitas al día siguiente). Joaco (JDP) adapta su forma de trabajar según el contexto de cada colegio. Esta capacidad de aprender sobre la marcha es valiosa y podría potenciarse con espacios de reflexión más intencionados.</p>
+    </div>
+  </div>
+
+  <h3>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Temas que conviene conversar como equipo
+  </h3>
+  <div class="g2 mb-md">
+    <div class="card" style="border-top:4px solid var(--naranja);">
+      <h4>¿Cómo trabajamos con actores escolares que enfrentan dificultades?</h4>
+      <p>En varias instancias se observó que, cuando un actor escolar presenta dificultades (un mentor que no implementa bien, un docente que no se involucra), las respuestas del equipo son desiguales: en algunos casos se propone directamente su reemplazo, mientras que en otros se exploran estrategias de desarrollo. Es importante alinear el mensaje del equipo en torno a un enfoque compartido: trabajar desde las altas expectativas y la convicción de que todos pueden aprender y mejorar cuando se les acompaña adecuadamente. Esto conecta con el sentido profundo del trabajo de la fundación: entregar posibilidades.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--naranja);">
+      <h4>Energía y dinamismo en las instancias</h4>
+      <p>La observadora registró el nivel de energía como un factor relevante, especialmente en talleres y retroalimentaciones donde se espera que el equipo modele prácticas activas y participativas. La energía varía entre personas e instancias, y puede incidir en el grado de involucramiento del actor escolar.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Necesidades -->
+<section id="necesidades">
+  <h2>¿Cómo podemos apoyar al equipo a partir de lo observado?</h2>
+  <p class="bajada">Las visitas permitieron identificar dos tipos de necesidades: cosas que el equipo podría aprender o fortalecer, y definiciones que Trabün necesita tomar como institución.</p>
+
+  <h3>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--celeste)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Necesidades de aprendizaje del equipo
+  </h3>
+  <div class="mb-lg">
+    <div class="need"><span class="need-code">NA1</span><p><strong>Uso de datos de manera formativa</strong> — Todo el equipo JDP. En las visitas se observó que la práctica predominante es presentar datos al colegio (por ejemplo, porcentajes de implementación o resultados de encuestas). La siguiente etapa sería conectar esos datos con preguntas: ¿qué nos dicen sobre la calidad de la implementación?, ¿qué decisiones podemos tomar a partir de ellos? Esto incluye también verificar si los datos son representativos antes de presentarlos, y contextualizarlos para que el colegio pueda interpretarlos. Seba (JDP) fue el único que se observó haciendo esto de manera consistente, y Joaco (JDP) también avanzó en esta dirección al construir un relato formativo a partir de los datos — lo que muestra que es posible y que la brecha es de práctica, no de capacidad.</p></div>
+    <div class="need"><span class="need-code">NA2</span><p><strong>Alinear la comprensión y forma de uso de la pauta de retroalimentación</strong> — Todo el equipo CI. Trabün cuenta con una pauta de retroalimentación de 6 pasos, compartida entre ASE y Religión. En las visitas se observaron diferencias importantes en cómo cada CI la comprende y aplica: Maca (CI) realiza retroalimentaciones breves de 5-10 minutos; Nico (CI) se extiende considerablemente más. La profundidad también varía: algunos CI recorren los pasos de manera superficial, mientras otros profundizan en la reflexión del actor escolar. La participación del docente o mentor durante la retroalimentación también difiere — en algunos casos es más bien receptiva y en otros es más dialogada. Alinear la comprensión compartida de la pauta y su forma de uso, reconociendo que cada CI puede estar en un nivel distinto de dominio, es una necesidad de aprendizaje porque asegura que todos los actores escolares reciban un acompañamiento con una base común de calidad (ver OB8).</p></div>
+    <div class="need"><span class="need-code">NA3</span><p><strong>Profundizar la comprensión y el uso de prácticas movilizadoras</strong> — Todo el equipo. Las "prácticas movilizadoras" son técnicas que buscan que las instancias sean participativas y profundas (por ejemplo: extender el pensamiento del otro, modelar una práctica, hacer preguntas abiertas, conectar con la experiencia del docente). En las visitas se observaron niveles muy distintos de manejo: Ángeles (CI) las aplica con naturalidad y variedad; en el otro extremo, se registró al menos un caso donde la práctica se entendió de manera literal y mecánica. La brecha no es solo de técnica sino de comprensión: ¿para qué sirven estas prácticas y cuándo usarlas? Esto aplica también al propio equipo Trabün, donde la comprensión de estas prácticas no es uniforme. Desde los actores escolares se registró además la demanda de poder observar en video cómo se ve una práctica movilizadora bien aplicada (ver OB9).</p></div>
+    <div class="need"><span class="need-code">NA4</span><p><strong>Graduar la autonomía del actor escolar</strong> — Todo el equipo. Una de las metas de Trabün es que los colegios vayan asumiendo progresivamente lo que al principio hace el equipo. El camino es "hacer por" → "hacer con" → "dejar hacer". En la práctica, se observó que la transición no siempre ocurre de manera intencionada: en algunos casos el equipo sigue interviniendo directamente aunque el actor escolar podría asumir más; en otros, se delega sin verificar si el colegio está preparado. El equipo necesita marcos más explícitos para decidir cuándo dar más espacio y cuándo acompañar más de cerca, según la etapa y las condiciones de cada actor escolar (ver OB11).</p></div>
+    <div class="need"><span class="need-code">NA5</span><p><strong>Gestionar el tiempo de las visitas</strong> — Todo el equipo. En varias visitas se observó que las instancias se extienden más allá de lo planificado, lo que comprime las instancias siguientes o deja algunas sin realizar. Esto requiere habilidades concretas: anticipar tiempos por instancia, establecer límites, tomar decisiones cuando algo se extiende y comunicar los ajustes al colegio. Pero más allá de la herramienta, es clave que cada persona del equipo tenga claro el objetivo y propósito de cada instancia dentro de la visita: cuando se sabe para qué está cada momento, es más fácil priorizar y decidir qué puede esperar.</p></div>
+    <div class="need"><span class="need-code">NA6</span><p><strong>Estructurar la tutoría al encargado</strong> — Todo el equipo JDP. El "encargado" es la persona del colegio que coordina la implementación del programa. La tutoría al encargado — la instancia donde el JDP acompaña y orienta a esta persona — fue la que mostró menor grado de estructura y materialidad compartida entre los JDP observados. Mientras otras instancias (como la retroalimentación) tienen una pauta y pasos definidos, la tutoría al encargado parece más dependiente del estilo de cada JDP, sin un marco común que asegure un piso de calidad.</p></div>
+  </div>
+
+  <h3>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    Definiciones que Trabün necesita tomar como institución
+  </h3>
+  <div class="mb-lg">
+    <div class="need"><span class="need-code" style="background:var(--naranja);">DP1</span><p><strong>Definir un estándar compartido para la pauta de retroalimentación</strong> — La pauta de 6 pasos existe y es compartida entre ASE y Religión. Pero no hay un acuerdo explícito sobre qué significa aplicarla bien: ¿cuánto debería durar como mínimo?, ¿qué participación se espera del actor escolar?, ¿cómo se adapta según el nivel de experiencia de cada CI? Sin esta definición, la variación observada es esperable — cada CI interpreta a su criterio. La definición institucional es prerrequisito para que la necesidad de aprendizaje (NA2) tenga un referente claro.</p></div>
+    <div class="need"><span class="need-code" style="background:var(--naranja);">DP2</span><p><strong>Explicitar las expectativas de calidad por instancia y por modelo</strong> — ¿Qué se espera de una buena tutoría al encargado? ¿Y de una retroalimentación en modelo consolidado versus intensivo? Estas expectativas podrían extraerse del MDI (el marco institucional de implementación) y del documento de trayectorias. Actualmente, la variación observada sugiere que no están traducidas en criterios concretos que el equipo pueda usar como guía.</p></div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap">
+    <p class="brand">Fundación Trabün</p>
+    <p>Diagnóstico de Visitas a Terreno · Septiembre 2026</p>
+    <p>9 visitas a colegios · 13 personas observadas · 3 modelos · 2 programas</p>
+    <p style="margin-top:8px;">Observaciones: Ignacia Durán · Período: 30 jul – 20 ago 2026</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const nav=document.querySelector('nav');
+  const links=[...nav.querySelectorAll('a[href^="#"]')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const sects=ids.map(id=>document.getElementById(id)).filter(Boolean);
+
+  // Smooth scroll
+  links.forEach(l=>{
+    l.addEventListener('click',e=>{
+      e.preventDefault();
+      const t=document.getElementById(l.getAttribute('href').slice(1));
+      if(t){
+        const y=t.getBoundingClientRect().top+window.pageYOffset-nav.offsetHeight-12;
+        window.scrollTo({top:y,behavior:'smooth'});
+      }
+    });
+  });
+
+  // Active section highlighting
+  let ticking=false;
+  function updateActive(){
+    const scrollY=window.pageYOffset+nav.offsetHeight+40;
+    let current='';
+    sects.forEach(s=>{if(s.offsetTop<=scrollY)current=s.id;});
+    links.forEach(l=>{
+      l.classList.toggle('active',l.getAttribute('href')==='#'+current);
+    });
+    ticking=false;
+  }
+  window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateActive);ticking=true;}});
+  updateActive();
+
+  // Animate bars on load
+  document.querySelectorAll('.bar-fill').forEach(b=>{
+    const w=b.style.width;b.style.width='0';
+    setTimeout(()=>{b.style.width=w;},200);
+  });
+})();
+</script></body>
+</html>
